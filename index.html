@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - OpenRouter LLM Interface</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <i class="fas fa-robot"></i>
+                    AI Chat
+                </h1>
+                <div class="header-controls">
+                    <button class="settings-btn" id="settingsBtn">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </button>
+                    <select class="model-selector" id="modelSelector">
+                        <option value="">Select Model</option>
+                        <option value="openai/gpt-4">GPT-4</option>
+                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="openai/gpt-oss-20b">GPT-OSS-20B (Free)</option>
+                        <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+                        <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                        <option value="deepseek/deepseek-chat-v3.1:free">DeepSeek V3.1 (Free)</option>
+                        <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="welcome-content">
+                        <i class="fas fa-comments"></i>
+                        <h2>Welcome to AI Chat</h2>
+                        <p>Select a model from the dropdown above and start chatting!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Type your message here..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="close-btn" id="closeSettings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="apiKey">OpenRouter API Key:</label>
+                        <input 
+                            type="password" 
+                            id="apiKey" 
+                            placeholder="Enter your OpenRouter API key"
+                        >
+                        <small>Your API key is stored locally and never shared.</small>
+                    </div>
+                    <div class="setting-group">
+                        <label for="temperature">Temperature:</label>
+                        <input 
+                            type="range" 
+                            id="temperature" 
+                            min="0" 
+                            max="2" 
+                            step="0.1" 
+                            value="0.7"
+                        >
+                        <span class="range-value">0.7</span>
+                    </div>
+                    <div class="setting-group">
+                        <label for="maxTokens">Max Tokens:</label>
+                        <input 
+                            type="number" 
+                            id="maxTokens" 
+                            min="1" 
+                            max="4000" 
+                            value="1000"
+                        >
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                    <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/settings.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
