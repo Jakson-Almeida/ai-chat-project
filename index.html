@@ -9,31 +9,52 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="app-title">
-                    <i class="fas fa-robot"></i>
-                    AI Chat
-                </h1>
-                <div class="header-controls">
-                    <button class="settings-btn" id="settingsBtn">
-                        <i class="fas fa-cog"></i>
-                        Settings
-                    </button>
-                    <select class="model-selector" id="modelSelector">
-                        <option value="">Select Model</option>
-                        <option value="openai/gpt-4">GPT-4</option>
-                        <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                        <option value="openai/gpt-oss-20b">GPT-OSS-20B (Free)</option>
-                        <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
-                        <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
-                        <option value="deepseek/deepseek-chat-v3.1:free">DeepSeek V3.1 (Free)</option>
-                        <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
-                    </select>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    New Chat
+                </button>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div class="chat-history" id="chatHistory">
+                <div class="history-empty">
+                    <i class="fas fa-comments"></i>
+                    <p>No conversations yet</p>
                 </div>
             </div>
-        </header>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="app-title">
+                        <i class="fas fa-robot"></i>
+                        AI Chat
+                    </h1>
+                    <div class="header-controls">
+                        <button class="settings-btn" id="settingsBtn">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </button>
+                        <select class="model-selector" id="modelSelector">
+                            <option value="">Select Model</option>
+                            <option value="openai/gpt-4">GPT-4</option>
+                            <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="openai/gpt-oss-20b">GPT-OSS-20B (Free)</option>
+                            <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+                            <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                            <option value="deepseek/deepseek-chat-v3.1:free">DeepSeek V3.1 (Free)</option>
+                            <option value="meta-llama/llama-2-70b-chat">Llama 2 70B</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
 
         <!-- Main Chat Area -->
         <main class="chat-container">
@@ -62,6 +83,7 @@
                 </div>
             </div>
         </main>
+        </div>
 
         <!-- Settings Modal -->
         <div class="modal-overlay" id="settingsModal">
@@ -116,6 +138,8 @@
     <!-- Scripts -->
     <script src="scripts/settings.js"></script>
     <script src="scripts/api.js"></script>
+    <script src="scripts/markdown.js"></script>
+    <script src="scripts/history.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 </html>

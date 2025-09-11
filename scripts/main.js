@@ -7,10 +7,12 @@ class ChatApp {
         this.modelSelector = document.getElementById('modelSelector');
         this.messages = [];
         this.isLoading = false;
+        this.currentChatId = null;
 
         this.initializeEventListeners();
         this.populateModelSelector();
         this.updateSendButton();
+        this.loadNewChat();
     }
 
     initializeEventListeners() {
@@ -89,6 +91,14 @@ class ChatApp {
             return;
         }
 
+        // Create new chat if none exists
+        if (!this.currentChatId) {
+            const newChat = historyManager.createNewChat();
+            this.currentChatId = newChat.id;
+            // Update chat with selected model
+            historyManager.updateChat(this.currentChatId, { model: selectedModel });
+        }
+
         // Add user message to chat
         this.addMessage('user', message);
         this.chatInput.value = '';
@@ -134,6 +144,11 @@ class ChatApp {
         this.messages.push(message);
         this.renderMessage(message);
         this.scrollToBottom();
+
+        // Save message to history
+        if (this.currentChatId) {
+            historyManager.addMessage(this.currentChatId, message);
+        }
     }
 
     renderMessage(message) {
@@ -146,7 +161,13 @@ class ChatApp {
 
         const content = document.createElement('div');
         content.className = 'message-content';
-        content.textContent = message.content;
+        
+        // Render markdown for assistant messages, plain text for user messages
+        if (message.role === 'assistant') {
+            content.innerHTML = markdownRenderer.render(message.content);
+        } else {
+            content.textContent = message.content;
+        }
 
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(content);
@@ -245,8 +266,43 @@ class ChatApp {
         }, 4000);
     }
 
-    clearChat() {
+    loadNewChat() {
+        this.currentChatId = null;
         this.messages = [];
+        this.renderWelcomeMessage();
+        this.updateSendButton();
+    }
+
+    loadChat(chatId) {
+        const chat = historyManager.loadChat(chatId);
+        if (chat) {
+            this.currentChatId = chatId;
+            this.messages = [...chat.messages];
+            this.renderMessages();
+            this.updateSendButton();
+            
+            // Update model selector if chat has a model
+            if (chat.model) {
+                this.modelSelector.value = chat.model;
+            }
+        }
+    }
+
+    renderMessages() {
+        this.chatMessages.innerHTML = '';
+        
+        if (this.messages.length === 0) {
+            this.renderWelcomeMessage();
+            return;
+        }
+
+        this.messages.forEach(message => {
+            this.renderMessage(message);
+        });
+        this.scrollToBottom();
+    }
+
+    renderWelcomeMessage() {
         this.chatMessages.innerHTML = `
             <div class="welcome-message">
                 <div class="welcome-content">
@@ -256,6 +312,13 @@ class ChatApp {
                 </div>
             </div>
         `;
+    }
+
+    clearChat() {
+        this.messages = [];
+        this.currentChatId = null;
+        this.renderWelcomeMessage();
+        this.updateSendButton();
     }
 }
 
