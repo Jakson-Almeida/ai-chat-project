@@ -221,6 +221,14 @@ class SettingsManager {
         };
     }
 
+    // Get settings for display (with masked API key)
+    getSettingsForDisplay() {
+        return {
+            ...this.settings,
+            apiKey: envLoader.getMaskedApiKey()
+        };
+    }
+
     isApiKeyConfigured() {
         return envLoader.isApiKeyConfigured();
     }

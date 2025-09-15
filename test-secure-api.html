@@ -87,7 +87,7 @@
                 
                 resultDiv.innerHTML = `
                     <div class="success">✅ API Key Storage Test Passed</div>
-                    <div>Stored Key: ${storedKey}</div>
+                    <div>Stored Key: ${envLoader.getMaskedApiKey()}</div>
                     <div>Is Configured: ${isConfigured}</div>
                     <div>Key Length: ${storedKey.length}</div>
                 `;
@@ -110,7 +110,7 @@
                 
                 resultDiv.innerHTML = `
                     <div class="success">✅ Masked Display Test Passed</div>
-                    <div>Full Key: ${fullKey}</div>
+                    <div>Full Key: [HIDDEN FOR SECURITY]</div>
                     <div>Masked Key: ${maskedKey}</div>
                     <div>Masked Length: ${maskedKey.length}</div>
                     <div>Contains Dots: ${maskedKey.includes('••••')}</div>
@@ -141,6 +141,7 @@
                     <div>Input Field Value: ${inputValue}</div>
                     <div>Key in Page Source: ${keyInSource ? '❌ EXPOSED' : '✅ HIDDEN'}</div>
                     <div>Key Length: ${testKey.length}</div>
+                    <div>Test Key: [HIDDEN FOR SECURITY]</div>
                 `;
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
@@ -155,7 +156,7 @@
                 const testKey = 'sk-or-v1-settings123456789';
                 envLoader.updateApiKey(testKey);
                 
-                const settings = settingsManager.getSettings();
+                const settings = settingsManager.getSettingsForDisplay();
                 const isConfigured = settingsManager.isApiKeyConfigured();
                 
                 resultDiv.innerHTML = `

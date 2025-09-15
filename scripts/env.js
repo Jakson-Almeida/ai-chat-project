@@ -57,9 +57,13 @@ class EnvironmentLoader {
         return this.env[key];
     }
 
-    // Get all environment variables
+    // Get all environment variables (with masked API key)
     getAll() {
-        return { ...this.env };
+        const maskedEnv = { ...this.env };
+        if (maskedEnv.OPENROUTER_API_KEY) {
+            maskedEnv.OPENROUTER_API_KEY = this.getMaskedApiKey();
+        }
+        return maskedEnv;
     }
 
     // Check if API key is configured
