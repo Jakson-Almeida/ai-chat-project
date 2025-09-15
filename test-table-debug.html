@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Debug Test</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .debug-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .debug-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .debug-markdown {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+        }
+        .debug-result {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: white;
+        }
+        .debug-info {
+            background: #e9ecef;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="chat-messages" style="padding: 2rem;">
+                <h1>Table Debug Test</h1>
+                
+                <div class="debug-section">
+                    <div class="debug-title">Test 1: Basic Table (from your image)</div>
+                    <div class="debug-markdown" id="markdown1"></div>
+                    <div class="debug-info" id="info1"></div>
+                    <div class="debug-result" id="result1"></div>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-title">Test 2: Simple Table</div>
+                    <div class="debug-markdown" id="markdown2"></div>
+                    <div class="debug-info" id="info2"></div>
+                    <div class="debug-result" id="result2"></div>
+                </div>
+
+                <div class="debug-section">
+                    <div class="debug-title">Test 3: Complex Table</div>
+                    <div class="debug-markdown" id="markdown3"></div>
+                    <div class="debug-info" id="info3"></div>
+                    <div class="debug-result" id="result3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/markdown.js"></script>
+    <script>
+        // Test cases based on the image content
+        const testCases = [
+            {
+                id: '1',
+                markdown: `| Measure | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---------|---|---|---|---|---|---|---|---|
+| Verse   | C | G | Am| F | C | G | Am| F |
+| Chorus  | C | G | Am| F | C | G | Am| F |
+| Bridge  | C | G | Am| F | C | G | Am| F |`
+            },
+            {
+                id: '2',
+                markdown: `| Name | Age | City |
+|------|-----|------|
+| John | 25  | NYC  |
+| Jane | 30  | LA   |`
+            },
+            {
+                id: '3',
+                markdown: `| Section | Lyrics (vocal melody) | Chords |
+|---------|---------------------|--------|
+| Verse 1 | In the hush of dawn, the world awakens,<br>Soft light spills over streets that still are dreaming. | C - G - Am - F |
+| Pre-Chorus | And every breath feels like a promise,<br>Quiet hope that sings in the morning's hush. | C - G - Am - F |
+| Chorus | Morning light, you paint the sky,<br>Colors rise where shadows lie. | F |`
+            }
+        ];
+
+        // Run tests
+        testCases.forEach(test => {
+            const markdownElement = document.getElementById(`markdown${test.id}`);
+            const infoElement = document.getElementById(`info${test.id}`);
+            const resultElement = document.getElementById(`result${test.id}`);
+            
+            // Display markdown
+            markdownElement.textContent = test.markdown;
+            
+            // Process with markdown renderer
+            const result = markdownRenderer.render(test.markdown);
+            resultElement.innerHTML = result;
+            
+            // Debug info
+            const hasTable = result.includes('<table class="markdown-table">');
+            const hasHeader = result.includes('<thead>');
+            const hasBody = result.includes('<tbody>');
+            const hasCells = result.includes('<td>') && result.includes('<th>');
+            const tableCount = (result.match(/<table/g) || []).length;
+            
+            infoElement.innerHTML = `
+                <strong>Debug Info:</strong><br>
+                Has table: ${hasTable}<br>
+                Has header: ${hasHeader}<br>
+                Has body: ${hasBody}<br>
+                Has cells: ${hasCells}<br>
+                Table count: ${tableCount}<br>
+                Success: ${hasTable && hasHeader && hasBody && hasCells}
+            `;
+            
+            console.log(`Test ${test.id}:`, {
+                markdown: test.markdown,
+                result: result,
+                hasTable,
+                hasHeader,
+                hasBody,
+                hasCells,
+                success: hasTable && hasHeader && hasBody && hasCells
+            });
+        });
+
+        // Test the table regex directly
+        console.log('Testing table regex directly...');
+        const testMarkdown = `| Name | Age |
+|------|-----|
+| John | 25  |`;
+        
+        const tableRegex = /^(\|.+\|)\s*\n(\|[-\s|]+\|)\s*\n((?:\|.+\|\s*\n?)*)/gm;
+        const matches = testMarkdown.match(tableRegex);
+        console.log('Regex matches:', matches);
+        
+        // Test individual parts
+        const headerMatch = testMarkdown.match(/^(\|.+\|)/m);
+        const separatorMatch = testMarkdown.match(/\n(\|[-\s|]+\|)/m);
+        const rowsMatch = testMarkdown.match(/\n((?:\|.+\|\s*\n?)*)/m);
+        
+        console.log('Header match:', headerMatch);
+        console.log('Separator match:', separatorMatch);
+        console.log('Rows match:', rowsMatch);
+    </script>
+</body>
+</html>

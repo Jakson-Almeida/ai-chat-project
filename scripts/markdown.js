@@ -81,6 +81,9 @@ class MarkdownRenderer {
         // Process tables before other formatting
         html = this.processTables(html);
         
+        // Process table-like structures that might not be in strict markdown format
+        html = this.processTableLikeStructures(html);
+        
         // Process task lists
         html = this.processTaskLists(html);
         
@@ -129,26 +132,110 @@ class MarkdownRenderer {
     }
 
     processTables(text) {
-        // Enhanced table processing with more robust regex
-        const tableRegex = /^(\|.+\|)\s*\n(\|[-\s|]+\|)\s*\n((?:\|.+\|\s*\n?)*)/gm;
+        // Enhanced table processing with multiple regex patterns
+        const patterns = [
+            // Standard markdown table format
+            /^(\|.+\|)\s*\n(\|[-\s|]+\|)\s*\n((?:\|.+\|\s*\n?)*)/gm,
+            // Tables without separator line (common in AI output)
+            /^(\|.+\|)\s*\n((?:\|.+\|\s*\n?)+)/gm,
+            // Tables with inconsistent spacing
+            /^(\|.*\|)\s*\n(\|[\s\-|]+\|)\s*\n((?:\|.*\|\s*\n?)*)/gm
+        ];
         
-        return text.replace(tableRegex, (match, header, separator, rows) => {
+        let processedText = text;
+        
+        patterns.forEach((pattern, index) => {
+            processedText = processedText.replace(pattern, (match, header, separator, rows) => {
+                try {
+                    console.log(`Table pattern ${index + 1} matched:`, match);
+                    
+                    // Parse header row
+                    const headerCells = header.split('|')
+                        .map(cell => cell.trim())
+                        .filter(cell => cell.length > 0);
+                    
+                    if (headerCells.length === 0) return match;
+                    
+                    const headerHtml = `<thead><tr>${headerCells.map(cell => `<th>${cell}</th>`).join('')}</tr></thead>`;
+                    
+                    // Parse data rows
+                    let rowLines = [];
+                    if (rows) {
+                        rowLines = rows.trim().split('\n')
+                            .filter(line => line.trim().length > 0 && line.includes('|'));
+                    } else if (separator && !separator.includes('-')) {
+                        // If separator is actually data rows
+                        rowLines = separator.split('\n')
+                            .filter(line => line.trim().length > 0 && line.includes('|'));
+                    }
+                    
+                    const bodyHtml = `<tbody>${rowLines.map(row => {
+                        const cells = row.split('|')
+                            .map(cell => cell.trim())
+                            .filter(cell => cell.length > 0);
+                        return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+                    }).join('')}</tbody>`;
+                    
+                    return `<div class="table-container">
+                        <table class="markdown-table">
+                            ${headerHtml}
+                            ${bodyHtml}
+                        </table>
+                    </div>`;
+                } catch (error) {
+                    console.error('Table processing error:', error);
+                    return match; // Return original text if processing fails
+                }
+            });
+        });
+        
+        return processedText;
+    }
+
+    processTableLikeStructures(text) {
+        // Handle table-like structures that might not be in strict markdown format
+        // This is particularly useful for AI-generated content that might have inconsistent formatting
+        
+        // Pattern 1: Lines that look like table rows with | separators but no header separator
+        const tableLikePattern = /((?:^.*\|.*$\n?)+)/gm;
+        
+        return text.replace(tableLikePattern, (match) => {
+            const lines = match.trim().split('\n').filter(line => line.trim().length > 0);
+            
+            // Check if this looks like a table (multiple lines with | separators)
+            if (lines.length < 2) return match;
+            
+            const hasMultiplePipes = lines.every(line => (line.match(/\|/g) || []).length >= 2);
+            if (!hasMultiplePipes) return match;
+            
+            // Check if it's already been processed as a table
+            if (match.includes('<table')) return match;
+            
             try {
-                // Parse header row
-                const headerCells = header.split('|')
+                // Parse the first line as header
+                const headerCells = lines[0].split('|')
                     .map(cell => cell.trim())
                     .filter(cell => cell.length > 0);
                 
+                if (headerCells.length === 0) return match;
+                
                 const headerHtml = `<thead><tr>${headerCells.map(cell => `<th>${cell}</th>`).join('')}</tr></thead>`;
                 
-                // Parse data rows
-                const rowLines = rows.trim().split('\n')
-                    .filter(line => line.trim().length > 0 && line.includes('|'));
-                
-                const bodyHtml = `<tbody>${rowLines.map(row => {
+                // Parse remaining lines as data rows
+                const dataLines = lines.slice(1);
+                const bodyHtml = `<tbody>${dataLines.map(row => {
                     const cells = row.split('|')
                         .map(cell => cell.trim())
                         .filter(cell => cell.length > 0);
+                    
+                    // Ensure we have the same number of cells as header
+                    while (cells.length < headerCells.length) {
+                        cells.push('');
+                    }
+                    if (cells.length > headerCells.length) {
+                        cells = cells.slice(0, headerCells.length);
+                    }
+                    
                     return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
                 }).join('')}</tbody>`;
                 
@@ -159,8 +246,8 @@ class MarkdownRenderer {
                     </table>
                 </div>`;
             } catch (error) {
-                console.error('Table processing error:', error);
-                return match; // Return original text if processing fails
+                console.error('Table-like structure processing error:', error);
+                return match;
             }
         });
     }

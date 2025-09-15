@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Format Tables</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="chat-messages" style="padding: 2rem;">
+                <h1>Testing Tables from Your Image</h1>
+                
+                <div class="message assistant">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content" id="testContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/markdown.js"></script>
+    <script>
+        // Test with the exact format from your image
+        const testMarkdown = `bass, subtle strings of synth pads for atmosphere. Feel: Soft, hopeful, gently uplifting—like the first light of day.
+
+**1. Chord Progression (All verses and choruses use the same "home" progression)**
+
+| Measure | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---------|---|---|---|---|---|---|---|---|
+| Verse   | C | G | Am| F | C | G | Am| F |
+| Chorus  | C | G | Am| F | C | G | Am| F |
+| Bridge  | C | G | Am| F | C | G | Am| F |
+
+(The chords are in root position for simplicity; you can use inversions or added tones for richer texture.)
+
+**2. Lyrics & Harmony**
+
+| Section | Lyrics (vocal melody) | Chords |
+|---------|---------------------|--------|
+| Verse 1 | In the hush of dawn, the world awakens,<br>Soft light spills over streets that still are dreaming. | C - G - Am - F |
+| Pre-Chorus | And every breath feels like a promise,<br>Quiet hope that sings in the morning's hush. | C - G - Am - F |
+| Chorus | Morning light, you paint the sky,<br>Colors rise where shadows lie.<br>Hold me close, feel the day's new song,<br>In your glow, I belong. | F |`;
+
+        const rendered = markdownRenderer.render(testMarkdown);
+        document.getElementById('testContent').innerHTML = rendered;
+        
+        console.log('Rendered HTML:', rendered);
+        
+        // Check for table elements
+        const hasTables = rendered.includes('<table class="markdown-table">');
+        const tableCount = (rendered.match(/<table class="markdown-table">/g) || []).length;
+        
+        console.log('Has tables:', hasTables);
+        console.log('Table count:', tableCount);
+        
+        if (hasTables) {
+            document.body.insertAdjacentHTML('afterbegin', 
+                '<div style="position: fixed; top: 10px; right: 10px; background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; z-index: 1000;">✅ Tables are rendering correctly!</div>'
+            );
+        } else {
+            document.body.insertAdjacentHTML('afterbegin', 
+                '<div style="position: fixed; top: 10px; right: 10px; background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; z-index: 1000;">❌ Tables are not rendering</div>'
+            );
+        }
+    </script>
+</body>
+</html>
