@@ -179,13 +179,13 @@ class ChatApp {
             
             const copyTextBtn = document.createElement('button');
             copyTextBtn.className = 'copy-btn copy-text-btn';
-            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i>';
             copyTextBtn.title = 'Copy raw markdown text';
             copyTextBtn.onclick = () => this.copyToClipboard(message.content, copyTextBtn, 'Text copied!');
             
             const copyHtmlBtn = document.createElement('button');
             copyHtmlBtn.className = 'copy-btn copy-html-btn';
-            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i> Copy HTML';
+            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i>';
             copyHtmlBtn.title = 'Copy rendered HTML';
             copyHtmlBtn.onclick = () => this.copyToClipboard(content.innerHTML, copyHtmlBtn, 'HTML copied!');
             

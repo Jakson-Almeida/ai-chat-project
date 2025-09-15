@@ -31,7 +31,7 @@
             <div class="chat-messages" id="chatMessages">
                 <div class="test-container">
                     <h1>Copy Feature Test</h1>
-                    <p>This page tests the copy functionality for AI messages. Hover over the AI messages below to see the copy buttons.</p>
+                    <p>This page tests the copy functionality for AI messages. Hover over the AI messages below to see the clean icon-only copy buttons in the bottom right corner.</p>
                     
                     <div class="test-section">
                         <div class="test-title">Test 1: Simple Text Message</div>
@@ -140,13 +140,13 @@
             
             const copyTextBtn = document.createElement('button');
             copyTextBtn.className = 'copy-btn copy-text-btn';
-            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i>';
             copyTextBtn.title = 'Copy raw markdown text';
             copyTextBtn.onclick = () => copyToClipboard(originalContent, copyTextBtn, 'Text copied!');
             
             const copyHtmlBtn = document.createElement('button');
             copyHtmlBtn.className = 'copy-btn copy-html-btn';
-            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i> Copy HTML';
+            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i>';
             copyHtmlBtn.title = 'Copy rendered HTML';
             copyHtmlBtn.onclick = () => copyToClipboard(content.innerHTML, copyHtmlBtn, 'HTML copied!');
             
