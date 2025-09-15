@@ -78,7 +78,7 @@
             
             try {
                 // Test storing an API key
-                const testKey = 'sk-or-v1-test123456789abcdef';
+                const testKey = 'sk-or-v1-test' + Math.random().toString(36).substring(2, 15);
                 envLoader.updateApiKey(testKey);
                 
                 // Test retrieval
@@ -91,6 +91,9 @@
                     <div>Is Configured: ${isConfigured}</div>
                     <div>Key Length: ${storedKey.length}</div>
                 `;
+                
+                // Clear the test key
+                envLoader.clearApiKey();
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
             }
@@ -101,12 +104,11 @@
             
             try {
                 // Set a test API key
-                const testKey = 'sk-or-v1-test123456789abcdef';
+                const testKey = 'sk-or-v1-test' + Math.random().toString(36).substring(2, 15);
                 envLoader.updateApiKey(testKey);
                 
                 // Test masked display
                 const maskedKey = envLoader.getMaskedApiKey();
-                const fullKey = envLoader.get('OPENROUTER_API_KEY');
                 
                 resultDiv.innerHTML = `
                     <div class="success">✅ Masked Display Test Passed</div>
@@ -115,6 +117,9 @@
                     <div>Masked Length: ${maskedKey.length}</div>
                     <div>Contains Dots: ${maskedKey.includes('••••')}</div>
                 `;
+                
+                // Clear the test key
+                envLoader.clearApiKey();
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
             }
@@ -125,22 +130,26 @@
             
             try {
                 // Test that API key is not exposed in DOM
-                const testKey = 'sk-or-v1-secret123456789';
+                // Generate a unique test key
+                const testKey = 'sk-or-v1-test' + Date.now();
                 envLoader.updateApiKey(testKey);
                 
                 // Check if key is visible in any input fields
                 const apiKeyInput = document.getElementById('apiKey');
                 const inputValue = apiKeyInput ? apiKeyInput.value : 'N/A';
                 
-                // Check if key appears in page source
+                // Check if key appears in page source using a different approach
                 const pageSource = document.documentElement.outerHTML;
-                const keyInSource = pageSource.includes(testKey);
+                const keyInSource = pageSource.includes('sk-or-v1-test');
+                
+                // Clear the test key from environment immediately
+                envLoader.clearApiKey();
                 
                 resultDiv.innerHTML = `
                     <div class="success">✅ Security Test Passed</div>
                     <div>Input Field Value: ${inputValue}</div>
                     <div>Key in Page Source: ${keyInSource ? '❌ EXPOSED' : '✅ HIDDEN'}</div>
-                    <div>Key Length: ${testKey.length}</div>
+                    <div>Key Length: [HIDDEN]</div>
                     <div>Test Key: [HIDDEN FOR SECURITY]</div>
                 `;
             } catch (error) {
@@ -153,7 +162,7 @@
             
             try {
                 // Test settings manager integration
-                const testKey = 'sk-or-v1-settings123456789';
+                const testKey = 'sk-or-v1-settings' + Math.random().toString(36).substring(2, 15);
                 envLoader.updateApiKey(testKey);
                 
                 const settings = settingsManager.getSettingsForDisplay();
@@ -166,6 +175,9 @@
                     <div>Temperature: ${settings.temperature}</div>
                     <div>Max Tokens: ${settings.maxTokens}</div>
                 `;
+                
+                // Clear the test key
+                envLoader.clearApiKey();
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
             }
