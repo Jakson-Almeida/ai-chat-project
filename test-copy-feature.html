@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy Feature Test</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="chat-messages" id="chatMessages">
+                <div class="test-container">
+                    <h1>Copy Feature Test</h1>
+                    <p>This page tests the copy functionality for AI messages. Hover over the AI messages below to see the copy buttons.</p>
+                    
+                    <div class="test-section">
+                        <div class="test-title">Test 1: Simple Text Message</div>
+                        <div class="message assistant" id="message1">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                Hello! This is a simple AI response.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 2: Markdown with Tables</div>
+                        <div class="message assistant" id="message2">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                Here's a table with some data:
+
+                                | Name | Age | City |
+                                |------|-----|------|
+                                | John | 25  | NYC  |
+                                | Jane | 30  | LA   |
+
+                                And some **bold text** and *italic text*.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 3: Code Block</div>
+                        <div class="message assistant" id="message3">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                Here's some JavaScript code:
+
+                                ```javascript
+                                function greet(name) {
+                                    return `Hello, ${name}!`;
+                                }
+                                
+                                console.log(greet("World"));
+                                ```
+
+                                This demonstrates code highlighting.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 4: Complex Markdown</div>
+                        <div class="message assistant" id="message4">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                # Complex Markdown Example
+
+                                This message contains various markdown elements:
+
+                                - **Bold text**
+                                - *Italic text*
+                                - `inline code`
+                                - [Links](https://example.com)
+
+                                > This is a blockquote
+
+                                ## Lists
+                                1. First item
+                                2. Second item
+                                3. Third item
+
+                                ### Table
+                                | Feature | Status |
+                                |---------|--------|
+                                | Tables  | ✅     |
+                                | Code    | ✅     |
+                                | Links   | ✅     |
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/markdown.js"></script>
+    <script>
+        // Initialize markdown renderer
+        const markdownRenderer = new MarkdownRenderer();
+        
+        // Process all AI messages
+        document.querySelectorAll('.message.assistant .message-content').forEach((content, index) => {
+            const originalContent = content.textContent;
+            content.innerHTML = markdownRenderer.render(originalContent);
+            
+            // Add copy buttons
+            const messageDiv = content.closest('.message');
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'message-actions';
+            
+            const copyTextBtn = document.createElement('button');
+            copyTextBtn.className = 'copy-btn copy-text-btn';
+            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+            copyTextBtn.title = 'Copy raw markdown text';
+            copyTextBtn.onclick = () => copyToClipboard(originalContent, copyTextBtn, 'Text copied!');
+            
+            const copyHtmlBtn = document.createElement('button');
+            copyHtmlBtn.className = 'copy-btn copy-html-btn';
+            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i> Copy HTML';
+            copyHtmlBtn.title = 'Copy rendered HTML';
+            copyHtmlBtn.onclick = () => copyToClipboard(content.innerHTML, copyHtmlBtn, 'HTML copied!');
+            
+            actionsContainer.appendChild(copyTextBtn);
+            actionsContainer.appendChild(copyHtmlBtn);
+            messageDiv.appendChild(actionsContainer);
+        });
+
+        // Copy to clipboard function
+        async function copyToClipboard(text, button, successMessage) {
+            try {
+                await navigator.clipboard.writeText(text);
+                
+                // Show success feedback
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> ' + successMessage;
+                button.style.background = '#28a745';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    
+                    // Show success feedback
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i> ' + successMessage;
+                    button.style.background = '#28a745';
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed: ', fallbackErr);
+                    
+                    // Show error feedback
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-times"></i> Copy failed';
+                    button.style.background = '#dc3545';
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        console.log('Copy feature test page loaded. Hover over AI messages to see copy buttons.');
+    </script>
+</body>
+</html>

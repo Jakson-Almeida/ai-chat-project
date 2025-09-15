@@ -172,6 +172,28 @@ class ChatApp {
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(content);
 
+        // Add copy buttons for AI messages
+        if (message.role === 'assistant') {
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'message-actions';
+            
+            const copyTextBtn = document.createElement('button');
+            copyTextBtn.className = 'copy-btn copy-text-btn';
+            copyTextBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Text';
+            copyTextBtn.title = 'Copy raw markdown text';
+            copyTextBtn.onclick = () => this.copyToClipboard(message.content, copyTextBtn, 'Text copied!');
+            
+            const copyHtmlBtn = document.createElement('button');
+            copyHtmlBtn.className = 'copy-btn copy-html-btn';
+            copyHtmlBtn.innerHTML = '<i class="fas fa-code"></i> Copy HTML';
+            copyHtmlBtn.title = 'Copy rendered HTML';
+            copyHtmlBtn.onclick = () => this.copyToClipboard(content.innerHTML, copyHtmlBtn, 'HTML copied!');
+            
+            actionsContainer.appendChild(copyTextBtn);
+            actionsContainer.appendChild(copyHtmlBtn);
+            messageDiv.appendChild(actionsContainer);
+        }
+
         // Remove welcome message if it exists
         const welcomeMessage = this.chatMessages.querySelector('.welcome-message');
         if (welcomeMessage) {
@@ -179,6 +201,59 @@ class ChatApp {
         }
 
         this.chatMessages.appendChild(messageDiv);
+    }
+
+    async copyToClipboard(text, button, successMessage) {
+        try {
+            await navigator.clipboard.writeText(text);
+            
+            // Show success feedback
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> ' + successMessage;
+            button.style.background = '#28a745';
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+            
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                
+                // Show success feedback
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> ' + successMessage;
+                button.style.background = '#28a745';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            } catch (fallbackErr) {
+                console.error('Fallback copy failed: ', fallbackErr);
+                
+                // Show error feedback
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-times"></i> Copy failed';
+                button.style.background = '#dc3545';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }
+            document.body.removeChild(textArea);
+        }
     }
 
     showTypingIndicator() {
