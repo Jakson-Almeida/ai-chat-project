@@ -1,8 +1,7 @@
-// Settings Management
+// Settings Management with Secure API Key Handling
 class SettingsManager {
     constructor() {
         this.settings = {
-            apiKey: '',
             temperature: 0.7,
             maxTokens: 1000
         };
@@ -11,15 +10,31 @@ class SettingsManager {
     }
 
     loadSettings() {
+        // Load from environment variables
+        this.settings.temperature = envLoader.get('DEFAULT_TEMPERATURE') || 0.7;
+        this.settings.maxTokens = envLoader.get('DEFAULT_MAX_TOKENS') || 1000;
+        
+        // Load additional settings from localStorage (non-sensitive only)
         const savedSettings = localStorage.getItem('aiChatSettings');
         if (savedSettings) {
-            this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+            try {
+                const parsed = JSON.parse(savedSettings);
+                this.settings.temperature = parsed.temperature || this.settings.temperature;
+                this.settings.maxTokens = parsed.maxTokens || this.settings.maxTokens;
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
         }
         this.updateUI();
     }
 
     saveSettings() {
-        localStorage.setItem('aiChatSettings', JSON.stringify(this.settings));
+        // Only save non-sensitive settings to localStorage
+        const safeSettings = {
+            temperature: this.settings.temperature,
+            maxTokens: this.settings.maxTokens
+        };
+        localStorage.setItem('aiChatSettings', JSON.stringify(safeSettings));
         this.updateUI();
     }
 
@@ -29,7 +44,17 @@ class SettingsManager {
         const maxTokensInput = document.getElementById('maxTokens');
         const rangeValue = document.querySelector('.range-value');
 
-        if (apiKeyInput) apiKeyInput.value = this.settings.apiKey;
+        // Show masked API key or placeholder
+        if (apiKeyInput) {
+            if (envLoader.isApiKeyConfigured()) {
+                apiKeyInput.value = envLoader.getMaskedApiKey();
+                apiKeyInput.placeholder = 'API key is configured';
+            } else {
+                apiKeyInput.value = '';
+                apiKeyInput.placeholder = 'Enter your OpenRouter API key';
+            }
+        }
+        
         if (temperatureInput) {
             temperatureInput.value = this.settings.temperature;
             if (rangeValue) rangeValue.textContent = this.settings.temperature;
@@ -117,7 +142,28 @@ class SettingsManager {
         const temperatureInput = document.getElementById('temperature');
         const maxTokensInput = document.getElementById('maxTokens');
 
-        if (apiKeyInput) this.settings.apiKey = apiKeyInput.value.trim();
+        // Handle API key securely
+        if (apiKeyInput) {
+            const apiKeyValue = apiKeyInput.value.trim();
+            
+            // Check if user is trying to update the API key
+            if (apiKeyValue && !apiKeyValue.includes('••••')) {
+                // New API key provided
+                if (envLoader.updateApiKey(apiKeyValue)) {
+                    this.showNotification('API key updated successfully!', 'success');
+                } else {
+                    this.showNotification('Invalid API key format', 'error');
+                    return;
+                }
+            } else if (apiKeyValue === '') {
+                // Clear API key
+                envLoader.clearApiKey();
+                this.showNotification('API key cleared', 'info');
+            }
+            // If value contains '••••', it means the masked key is shown, so don't update
+        }
+        
+        // Update other settings
         if (temperatureInput) this.settings.temperature = parseFloat(temperatureInput.value);
         if (maxTokensInput) this.settings.maxTokens = parseInt(maxTokensInput.value);
 
@@ -168,14 +214,17 @@ class SettingsManager {
     }
 
     getSettings() {
-        return this.settings;
+        // Return settings with API key from environment loader
+        return {
+            ...this.settings,
+            apiKey: envLoader.get('OPENROUTER_API_KEY')
+        };
     }
 
     isApiKeyConfigured() {
-        return this.settings.apiKey && this.settings.apiKey.length > 0;
+        return envLoader.isApiKeyConfigured();
     }
 }
 
 // Initialize settings manager
 const settingsManager = new SettingsManager();
-

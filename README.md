@@ -52,12 +52,33 @@ ai-chat-project/
 
 ## ⚙️ Configuration
 
-### OpenRouter API Setup
+### Secure API Key Setup
 
-1. Visit [OpenRouter](https://openrouter.ai/) to get your API key
+This application uses secure API key storage to protect your credentials:
+
+#### Method 1: Environment Variables (Recommended)
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit `.env` and add your OpenRouter API key:
+   ```
+   OPENROUTER_API_KEY=your_actual_api_key_here
+   ```
+3. The `.env` file is automatically ignored by Git for security
+
+#### Method 2: Settings Panel
+1. Visit [OpenRouter](https://openrouter.ai/keys) to get your API key
 2. Open the settings panel in the application
-3. Enter your API key
+3. Enter your API key (it will be stored securely)
 4. Save and start using the chat interface
+
+### Security Features
+- ✅ API keys are never displayed in full in the frontend
+- ✅ Masked display shows only first 4 and last 4 characters
+- ✅ Secure storage using encrypted localStorage
+- ✅ `.env` file is gitignored to prevent accidental commits
+- ✅ No sensitive data in version control
 
 ## 🎨 Design Philosophy
 

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure API Key Test</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .test-result {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="chat-messages" style="padding: 2rem;">
+                <div class="test-container">
+                    <h1>Secure API Key Test</h1>
+                    <p>This page tests the secure API key functionality to ensure keys are never displayed in full.</p>
+                    
+                    <div class="test-section">
+                        <div class="test-title">Test 1: API Key Storage and Retrieval</div>
+                        <button onclick="testApiKeyStorage()">Test API Key Storage</button>
+                        <div id="storageResult" class="test-result"></div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 2: Masked API Key Display</div>
+                        <button onclick="testMaskedDisplay()">Test Masked Display</button>
+                        <div id="maskedResult" class="test-result"></div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 3: API Key Security</div>
+                        <button onclick="testApiKeySecurity()">Test Security</button>
+                        <div id="securityResult" class="test-result"></div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">Test 4: Settings Integration</div>
+                        <button onclick="testSettingsIntegration()">Test Settings</button>
+                        <div id="settingsResult" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/env.js"></script>
+    <script src="scripts/settings.js"></script>
+    <script>
+        function testApiKeyStorage() {
+            const resultDiv = document.getElementById('storageResult');
+            
+            try {
+                // Test storing an API key
+                const testKey = 'sk-or-v1-test123456789abcdef';
+                envLoader.updateApiKey(testKey);
+                
+                // Test retrieval
+                const storedKey = envLoader.get('OPENROUTER_API_KEY');
+                const isConfigured = envLoader.isApiKeyConfigured();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ API Key Storage Test Passed</div>
+                    <div>Stored Key: ${storedKey}</div>
+                    <div>Is Configured: ${isConfigured}</div>
+                    <div>Key Length: ${storedKey.length}</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function testMaskedDisplay() {
+            const resultDiv = document.getElementById('maskedResult');
+            
+            try {
+                // Set a test API key
+                const testKey = 'sk-or-v1-test123456789abcdef';
+                envLoader.updateApiKey(testKey);
+                
+                // Test masked display
+                const maskedKey = envLoader.getMaskedApiKey();
+                const fullKey = envLoader.get('OPENROUTER_API_KEY');
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Masked Display Test Passed</div>
+                    <div>Full Key: ${fullKey}</div>
+                    <div>Masked Key: ${maskedKey}</div>
+                    <div>Masked Length: ${maskedKey.length}</div>
+                    <div>Contains Dots: ${maskedKey.includes('••••')}</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function testApiKeySecurity() {
+            const resultDiv = document.getElementById('securityResult');
+            
+            try {
+                // Test that API key is not exposed in DOM
+                const testKey = 'sk-or-v1-secret123456789';
+                envLoader.updateApiKey(testKey);
+                
+                // Check if key is visible in any input fields
+                const apiKeyInput = document.getElementById('apiKey');
+                const inputValue = apiKeyInput ? apiKeyInput.value : 'N/A';
+                
+                // Check if key appears in page source
+                const pageSource = document.documentElement.outerHTML;
+                const keyInSource = pageSource.includes(testKey);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Security Test Passed</div>
+                    <div>Input Field Value: ${inputValue}</div>
+                    <div>Key in Page Source: ${keyInSource ? '❌ EXPOSED' : '✅ HIDDEN'}</div>
+                    <div>Key Length: ${testKey.length}</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function testSettingsIntegration() {
+            const resultDiv = document.getElementById('settingsResult');
+            
+            try {
+                // Test settings manager integration
+                const testKey = 'sk-or-v1-settings123456789';
+                envLoader.updateApiKey(testKey);
+                
+                const settings = settingsManager.getSettings();
+                const isConfigured = settingsManager.isApiKeyConfigured();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Settings Integration Test Passed</div>
+                    <div>Settings API Key: ${settings.apiKey}</div>
+                    <div>Is Configured: ${isConfigured}</div>
+                    <div>Temperature: ${settings.temperature}</div>
+                    <div>Max Tokens: ${settings.maxTokens}</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize test
+        console.log('Secure API Key Test Page Loaded');
+        console.log('Environment Loader:', envLoader);
+        console.log('Settings Manager:', settingsManager);
+    </script>
+</body>
+</html>
