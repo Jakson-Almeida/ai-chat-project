@@ -50,3 +50,4 @@ if (hasTable && hasTableContainer && hasTableHeaders && hasTableBody) {
 } else {
     console.log('❌ Table rendering has issues');
 }
+

@@ -31,3 +31,4 @@ This ensures table formatting works correctly in the AI chat application."
 echo.
 echo Commit completed successfully!
 pause
+
