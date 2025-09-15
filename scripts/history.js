@@ -244,3 +244,4 @@ class ChatHistoryManager {
 
 // Initialize history manager
 const historyManager = new ChatHistoryManager();
+

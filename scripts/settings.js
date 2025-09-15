@@ -178,3 +178,4 @@ class SettingsManager {
 
 // Initialize settings manager
 const settingsManager = new SettingsManager();
+
