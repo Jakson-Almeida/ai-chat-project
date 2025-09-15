@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Test</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="message-content" id="testContent"></div>
+    
+    <script src="scripts/markdown.js"></script>
+    <script>
+        // Test table formatting
+        const testMarkdown = `
+# Table Test
+
+Here's a simple table:
+
+| Name | Age | City |
+|------|-----|------|
+| John | 25  | NYC  |
+| Jane | 30  | LA   |
+| Bob  | 35  | Chicago |
+
+And a more complex table:
+
+| Feature | Status | Priority | Notes |
+|---------|--------|----------|-------|
+| Tables | ✅ | High | Working |
+| Code blocks | ✅ | High | Enhanced |
+| Task lists | ✅ | Medium | New feature |
+
+End of test.
+        `;
+        
+        const rendered = markdownRenderer.render(testMarkdown);
+        document.getElementById('testContent').innerHTML = rendered;
+    </script>
+</body>
+</html>

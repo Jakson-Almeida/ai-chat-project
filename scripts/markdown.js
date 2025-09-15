@@ -39,8 +39,7 @@ class MarkdownRenderer {
             // Blockquotes (enhanced with better styling)
             blockquotes: { pattern: /^> (.+)$/gm, replacement: '<blockquote class="markdown-blockquote">$1</blockquote>' },
             
-            // Tables (basic support)
-            table: { pattern: /\|(.+)\|\n\|[-\s|]+\|\n((?:\|.+\|\n?)*)/g, replacement: '<div class="table-container"><table class="markdown-table">$1</table></div>' },
+            // Tables are handled by processTables method
             
             // Horizontal rules (enhanced)
             horizontalRule: { pattern: /^---$/gm, replacement: '<hr class="markdown-hr">' },
@@ -87,7 +86,7 @@ class MarkdownRenderer {
         
         // Process other markdown rules
         for (const [ruleName, rule] of Object.entries(this.rules)) {
-            if (!['codeBlock', 'inlineCode', 'table', 'taskList', 'taskListChecked'].includes(ruleName)) {
+            if (!['codeBlock', 'inlineCode', 'taskList', 'taskListChecked'].includes(ruleName)) {
                 html = html.replace(rule.pattern, rule.replacement);
             }
         }
@@ -130,23 +129,39 @@ class MarkdownRenderer {
     }
 
     processTables(text) {
-        // Enhanced table processing
-        return text.replace(/\|(.+)\|\n\|[-\s|]+\|\n((?:\|.+\|\n?)*)/g, (match, header, rows) => {
-            const headerCells = header.split('|').map(cell => cell.trim()).filter(cell => cell);
-            const headerHtml = `<thead><tr>${headerCells.map(cell => `<th>${cell}</th>`).join('')}</tr></thead>`;
-            
-            const rowLines = rows.trim().split('\n').filter(line => line.trim());
-            const bodyHtml = `<tbody>${rowLines.map(row => {
-                const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
-                return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
-            }).join('')}</tbody>`;
-            
-            return `<div class="table-container">
-                <table class="markdown-table">
-                    ${headerHtml}
-                    ${bodyHtml}
-                </table>
-            </div>`;
+        // Enhanced table processing with more robust regex
+        const tableRegex = /^(\|.+\|)\s*\n(\|[-\s|]+\|)\s*\n((?:\|.+\|\s*\n?)*)/gm;
+        
+        return text.replace(tableRegex, (match, header, separator, rows) => {
+            try {
+                // Parse header row
+                const headerCells = header.split('|')
+                    .map(cell => cell.trim())
+                    .filter(cell => cell.length > 0);
+                
+                const headerHtml = `<thead><tr>${headerCells.map(cell => `<th>${cell}</th>`).join('')}</tr></thead>`;
+                
+                // Parse data rows
+                const rowLines = rows.trim().split('\n')
+                    .filter(line => line.trim().length > 0 && line.includes('|'));
+                
+                const bodyHtml = `<tbody>${rowLines.map(row => {
+                    const cells = row.split('|')
+                        .map(cell => cell.trim())
+                        .filter(cell => cell.length > 0);
+                    return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+                }).join('')}</tbody>`;
+                
+                return `<div class="table-container">
+                    <table class="markdown-table">
+                        ${headerHtml}
+                        ${bodyHtml}
+                    </table>
+                </div>`;
+            } catch (error) {
+                console.error('Table processing error:', error);
+                return match; // Return original text if processing fails
+            }
         });
     }
 

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Formatting Verification</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .test-markdown {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+        }
+        .test-result {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="chat-messages" style="padding: 2rem;">
+                <h1>Table Formatting Verification</h1>
+                
+                <div class="test-section">
+                    <div class="test-title">Test 1: Basic Table</div>
+                    <div class="test-markdown">| Name | Age | City |
+|------|-----|------|
+| John | 25  | NYC  |
+| Jane | 30  | LA   |</div>
+                    <div class="test-result" id="test1"></div>
+                </div>
+
+                <div class="test-section">
+                    <div class="test-title">Test 2: Complex Table</div>
+                    <div class="test-markdown">| Feature | Status | Priority | Notes |
+|---------|--------|----------|-------|
+| Tables | ✅ | High | Working |
+| Code blocks | ✅ | High | Enhanced |
+| Task lists | ✅ | Medium | New feature |</div>
+                    <div class="test-result" id="test2"></div>
+                </div>
+
+                <div class="test-section">
+                    <div class="test-title">Test 3: Table with Mixed Content</div>
+                    <div class="test-markdown">| Language | Type | Popularity |
+|----------|------|------------|
+| JavaScript | Dynamic | Very High |
+| Python | Interpreted | High |
+| Rust | Compiled | Growing |</div>
+                    <div class="test-result" id="test3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/markdown.js"></script>
+    <script>
+        // Test cases
+        const tests = [
+            {
+                id: 'test1',
+                markdown: `| Name | Age | City |
+|------|-----|------|
+| John | 25  | NYC  |
+| Jane | 30  | LA   |`
+            },
+            {
+                id: 'test2',
+                markdown: `| Feature | Status | Priority | Notes |
+|---------|--------|----------|-------|
+| Tables | ✅ | High | Working |
+| Code blocks | ✅ | High | Enhanced |
+| Task lists | ✅ | Medium | New feature |`
+            },
+            {
+                id: 'test3',
+                markdown: `| Language | Type | Popularity |
+|----------|------|------------|
+| JavaScript | Dynamic | Very High |
+| Python | Interpreted | High |
+| Rust | Compiled | Growing |`
+            }
+        ];
+
+        // Run tests
+        tests.forEach(test => {
+            const result = markdownRenderer.render(test.markdown);
+            document.getElementById(test.id).innerHTML = result;
+            
+            // Check if table was rendered correctly
+            const hasTable = result.includes('<table class="markdown-table">');
+            const hasHeader = result.includes('<thead>');
+            const hasBody = result.includes('<tbody>');
+            const hasCells = result.includes('<td>') && result.includes('<th>');
+            
+            console.log(`Test ${test.id}:`, {
+                hasTable,
+                hasHeader,
+                hasBody,
+                hasCells,
+                success: hasTable && hasHeader && hasBody && hasCells
+            });
+        });
+
+        // Overall verification
+        const allTestsPassed = tests.every(test => {
+            const result = markdownRenderer.render(test.markdown);
+            return result.includes('<table class="markdown-table">') &&
+                   result.includes('<thead>') &&
+                   result.includes('<tbody>') &&
+                   result.includes('<td>') &&
+                   result.includes('<th>');
+        });
+
+        console.log('All table tests passed:', allTestsPassed);
+        
+        if (allTestsPassed) {
+            document.body.insertAdjacentHTML('afterbegin', 
+                '<div style="position: fixed; top: 10px; right: 10px; background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; z-index: 1000;">✅ Table formatting is working correctly!</div>'
+            );
+        } else {
+            document.body.insertAdjacentHTML('afterbegin', 
+                '<div style="position: fixed; top: 10px; right: 10px; background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; z-index: 1000;">❌ Table formatting has issues</div>'
+            );
+        }
+    </script>
+</body>
+</html>

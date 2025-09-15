@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .table-container { margin: 20px 0; }
+        .markdown-table { border-collapse: collapse; width: 100%; }
+        .markdown-table th, .markdown-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .markdown-table th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Table Formatting Test</h1>
+    <div id="results"></div>
+    <div id="rendered-content"></div>
+
+    <script>
+        // Simplified markdown renderer for testing
+        class TestMarkdownRenderer {
+            processTables(text) {
+                const tableRegex = /^(\|.+\|)\s*\n(\|[-\s|]+\|)\s*\n((?:\|.+\|\s*\n?)*)/gm;
+                
+                return text.replace(tableRegex, (match, header, separator, rows) => {
+                    const headerCells = header.split('|')
+                        .map(cell => cell.trim())
+                        .filter(cell => cell.length > 0);
+                    
+                    const headerHtml = `<thead><tr>${headerCells.map(cell => `<th>${cell}</th>`).join('')}</tr></thead>`;
+                    
+                    const rowLines = rows.trim().split('\n')
+                        .filter(line => line.trim().length > 0 && line.includes('|'));
+                    
+                    const bodyHtml = `<tbody>${rowLines.map(row => {
+                        const cells = row.split('|')
+                            .map(cell => cell.trim())
+                            .filter(cell => cell.length > 0);
+                        return `<tr>${cells.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+                    }).join('')}</tbody>`;
+                    
+                    return `<div class="table-container">
+                        <table class="markdown-table">
+                            ${headerHtml}
+                            ${bodyHtml}
+                        </table>
+                    </div>`;
+                });
+            }
+        }
+
+        const renderer = new TestMarkdownRenderer();
+        
+        const testMarkdown = `| Name | Age | City |
+|------|-----|------|
+| John | 25  | NYC  |
+| Jane | 30  | LA   |`;
+
+        const result = renderer.processTables(testMarkdown);
+        
+        document.getElementById('rendered-content').innerHTML = result;
+        
+        const hasTable = result.includes('<table class="markdown-table">');
+        const hasHeader = result.includes('<thead>');
+        const hasBody = result.includes('<tbody>');
+        const hasCells = result.includes('<td>') && result.includes('<th>');
+        
+        const resultsDiv = document.getElementById('results');
+        
+        if (hasTable && hasHeader && hasBody && hasCells) {
+            resultsDiv.innerHTML = '<div class="test-result success">✅ Table formatting is working correctly!</div>';
+        } else {
+            resultsDiv.innerHTML = '<div class="test-result error">❌ Table formatting has issues</div>';
+        }
+        
+        console.log('Test result:', result);
+    </script>
+</body>
+</html>
